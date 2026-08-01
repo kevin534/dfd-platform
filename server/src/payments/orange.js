@@ -4,6 +4,7 @@
 //  Nécessite un compte marchand Orange Money (par pays).
 //  Sans clés -> mode démo (transaction simulée).
 // ============================================================
+import { isLive } from "./mode.js";
 
 async function getToken() {
   const id = process.env.ORANGE_CLIENT_ID;
@@ -23,7 +24,7 @@ async function getToken() {
 
 // Crée une demande de paiement et renvoie l'URL de paiement Orange
 export async function createOrangePayment({ reference, amountEur }) {
-  if ((process.env.PAYMENTS_MODE || "demo") !== "live" || !process.env.ORANGE_MERCHANT_KEY) {
+  if (!isLive("ORANGE_MERCHANT_KEY")) {
     return {
       provider: "orange",
       mode: "demo",

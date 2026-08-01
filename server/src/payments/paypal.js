@@ -4,6 +4,7 @@
 //  Nécessite un compte PayPal Business (client ID + secret).
 //  Sans clés -> mode démo (transaction simulée).
 // ============================================================
+import { isLive } from "./mode.js";
 
 const BASE = () =>
   (process.env.PAYPAL_MODE || "live") === "sandbox"
@@ -28,7 +29,7 @@ async function getToken() {
 
 // Crée une commande PayPal et renvoie le lien d'approbation vers lequel rediriger le donateur
 export async function createPaypalPayment({ reference, amountEur, kind = "donation" }) {
-  if ((process.env.PAYMENTS_MODE || "demo") !== "live" || !process.env.PAYPAL_CLIENT_ID) {
+  if (!isLive("PAYPAL_CLIENT_ID")) {
     return {
       provider: "paypal",
       mode: "demo",

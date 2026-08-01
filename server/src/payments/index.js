@@ -5,10 +5,13 @@
 import { createOrangePayment } from "./orange.js";
 import { createMtnPayment } from "./mtn.js";
 import { createPaypalPayment } from "./paypal.js";
+import { isLive } from "./mode.js";
+
+export { paymentStatus } from "./mode.js";
 
 // Stripe (carte / SEPA) — appel direct à l'API REST, sans SDK.
 async function createStripePayment({ reference, amountEur, method, email }) {
-  if ((process.env.PAYMENTS_MODE || "demo") !== "live" || !process.env.STRIPE_SECRET_KEY) {
+  if (!isLive("STRIPE_SECRET_KEY")) {
     return {
       provider: method,
       mode: "demo",

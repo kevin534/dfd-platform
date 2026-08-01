@@ -5,6 +5,7 @@
 //  Sans clés -> mode démo (transaction simulée).
 // ============================================================
 import crypto from "crypto";
+import { isLive } from "./mode.js";
 
 const BASE = "https://sandbox.momodeveloper.mtn.com"; // prod: https://proxy.momoapi.mtn.com
 
@@ -25,7 +26,7 @@ async function getToken() {
 
 // Demande de paiement au numéro mobile du donateur (Request to Pay)
 export async function createMtnPayment({ reference, amountEur, phone }) {
-  if ((process.env.PAYMENTS_MODE || "demo") !== "live" || !process.env.MTN_SUBSCRIPTION_KEY) {
+  if (!isLive("MTN_SUBSCRIPTION_KEY")) {
     return {
       provider: "mtn",
       mode: "demo",

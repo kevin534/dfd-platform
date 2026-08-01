@@ -13,6 +13,7 @@ import contentRoutes from "./routes/content.js";
 import formRoutes from "./routes/forms.js";
 import adminRoutes from "./routes/admin.js";
 import paymentsRoutes from "./routes/payments.js";
+import { paymentStatus } from "./payments/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -35,7 +36,7 @@ app.use("/api/memberships", rateLimit({ windowMs: 60_000, max: 10 }));
 app.use("/api/auth/login", rateLimit({ windowMs: 60_000, max: 5 }));
 
 app.get("/api/health", (req, res) =>
-  res.json({ ok: true, service: "dfd-api", paymentsMode: process.env.PAYMENTS_MODE || "demo" })
+  res.json({ ok: true, service: "dfd-api", payments: paymentStatus() })
 );
 
 app.use("/api", contentRoutes);
@@ -54,7 +55,8 @@ if (fs.existsSync(clientDist)) {
 }
 
 app.listen(PORT, () => {
+  const status = paymentStatus();
   console.log(`\n🌍  DFD API en écoute sur http://localhost:${PORT}`);
-  console.log(`    Paiements : ${process.env.PAYMENTS_MODE || "demo"}`);
+  console.log(`    Paiements : orange=${status.orange} mtn=${status.mtn} card=${status.card} paypal=${status.paypal}`);
   console.log(`    Santé     : http://localhost:${PORT}/api/health\n`);
 });

@@ -21,7 +21,7 @@ services:
       - key: ADMIN_PASSWORD
         sync: false                   # à saisir dans le dashboard Render
       - key: PAYMENTS_MODE
-        value: demo                   # passez à "live" après avoir ajouté les clés
+        sync: false                   # laissez vide : chaque moyen de paiement passe en live dès que SES clés sont renseignées ci-dessous. Mettez "demo" pour tout forcer en simulation, quelles que soient les clés.
       # Clés de paiement (à renseigner dans le dashboard, jamais dans le code) :
       - key: ORANGE_CLIENT_ID
         sync: false
