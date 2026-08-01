@@ -1,0 +1,24 @@
+# ============================================================
+#  DFD — Lancement en une commande :  docker compose up
+#  Application accessible sur http://localhost:4000
+# ============================================================
+services:
+  dfd:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      CLIENT_ORIGIN: "*"
+      JWT_SECRET: "${JWT_SECRET:-changez-moi-en-production}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL:-admin@dfd.org}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-DfdAdmin2025!}"
+      PAYMENTS_MODE: "${PAYMENTS_MODE:-demo}"
+      # Ajoutez ici vos clés Orange / MTN / Stripe pour activer les paiements réels
+    volumes:
+      # Persiste la base SQLite entre les redémarrages
+      - dfd-data:/app/server/data
+    restart: unless-stopped
+
+volumes:
+  dfd-data:
