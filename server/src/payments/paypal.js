@@ -12,8 +12,8 @@ const BASE = () =>
     : "https://api-m.paypal.com";
 
 async function getToken() {
-  const id = process.env.PAYPAL_CLIENT_ID;
-  const secret = process.env.PAYPAL_CLIENT_SECRET;
+  const id = (process.env.PAYPAL_CLIENT_ID || "").trim();
+  const secret = (process.env.PAYPAL_CLIENT_SECRET || "").trim();
   const res = await fetch(`${BASE()}/v1/oauth2/token`, {
     method: "POST",
     headers: {
@@ -22,7 +22,11 @@ async function getToken() {
     },
     body: "grant_type=client_credentials",
   });
-  if (!res.ok) throw new Error("PayPal: échec authentification");
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    console.error(`PayPal getToken() a échoué [${BASE()}] status=${res.status} :`, detail);
+    throw new Error(`PayPal: échec authentification (${res.status} — voir les logs serveur pour le détail)`);
+  }
   const data = await res.json();
   return data.access_token;
 }
