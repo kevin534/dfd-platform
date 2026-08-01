@@ -12,6 +12,7 @@ import { seed } from "./db.js";
 import contentRoutes from "./routes/content.js";
 import formRoutes from "./routes/forms.js";
 import adminRoutes from "./routes/admin.js";
+import paymentsRoutes from "./routes/payments.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -40,6 +41,7 @@ app.get("/api/health", (req, res) =>
 app.use("/api", contentRoutes);
 app.use("/api", formRoutes);
 app.use("/api/auth", adminRoutes);
+app.use("/api/payments", paymentsRoutes);
 
 // En production, sert le frontend compilé (web/dist) si présent
 const clientDist = path.join(__dirname, "..", "..", "web", "dist");

@@ -4,6 +4,7 @@
 // ============================================================
 import { createOrangePayment } from "./orange.js";
 import { createMtnPayment } from "./mtn.js";
+import { createPaypalPayment } from "./paypal.js";
 
 // Stripe (carte / SEPA) — appel direct à l'API REST, sans SDK.
 async function createStripePayment({ reference, amountEur, method, email }) {
@@ -36,12 +37,13 @@ async function createStripePayment({ reference, amountEur, method, email }) {
 }
 
 // Point d'entrée unique
-export async function initiatePayment({ method, reference, amountEur, phone, email }) {
+export async function initiatePayment({ method, reference, amountEur, phone, email, kind = "donation" }) {
   switch (method) {
     case "orange": return createOrangePayment({ reference, amountEur });
     case "mtn": return createMtnPayment({ reference, amountEur, phone });
     case "card":
     case "sepa": return createStripePayment({ reference, amountEur, method, email });
+    case "paypal": return createPaypalPayment({ reference, amountEur, kind });
     default: throw new Error("Méthode de paiement inconnue: " + method);
   }
 }

@@ -3,7 +3,7 @@ import {
   Heart, Menu, X, ArrowRight, ArrowUpRight, Mail, Phone, MapPin,
   Quote, Leaf, BookOpen, Shield, HandHeart, Stethoscope, GraduationCap,
   Users, Globe, Award, Check, Download, FileText, TrendingUp, Calendar, Sun,
-  Smartphone, CreditCard, Landmark, Lock, Facebook, Instagram, Linkedin, Send, LogOut,
+  Smartphone, CreditCard, Landmark, Lock, Facebook, Instagram, Linkedin, Send, LogOut, Wallet,
 } from "lucide-react";
 import { api } from "./api.js";
 import "./styles.css";
@@ -131,23 +131,24 @@ const GALLERY = [
   { theme: "savanna", size: "g1", cat: "event", cap: { fr: "Village partenaire", en: "Partner village" } },
 ];
 const COUNTRIES = [
-  { code: "CM", fr: "Cameroun", en: "Cameroon", flag: "🇨🇲", zone: "africa", ops: ["orange", "mtn", "card"] },
-  { code: "CI", fr: "Côte d'Ivoire", en: "Côte d'Ivoire", flag: "🇨🇮", zone: "africa", ops: ["orange", "mtn", "card"] },
-  { code: "SN", fr: "Sénégal", en: "Senegal", flag: "🇸🇳", zone: "africa", ops: ["orange", "card"] },
-  { code: "BF", fr: "Burkina Faso", en: "Burkina Faso", flag: "🇧🇫", zone: "africa", ops: ["orange", "card"] },
-  { code: "ML", fr: "Mali", en: "Mali", flag: "🇲🇱", zone: "africa", ops: ["orange", "card"] },
-  { code: "GH", fr: "Ghana", en: "Ghana", flag: "🇬🇭", zone: "africa", ops: ["mtn", "card"] },
-  { code: "CD", fr: "RD Congo", en: "DR Congo", flag: "🇨🇩", zone: "africa", ops: ["orange", "mtn", "card"] },
-  { code: "FR", fr: "France", en: "France", flag: "🇫🇷", zone: "europe", ops: ["card", "sepa"] },
-  { code: "BE", fr: "Belgique", en: "Belgium", flag: "🇧🇪", zone: "europe", ops: ["card", "sepa"] },
-  { code: "DE", fr: "Allemagne", en: "Germany", flag: "🇩🇪", zone: "europe", ops: ["card", "sepa"] },
-  { code: "CH", fr: "Suisse", en: "Switzerland", flag: "🇨🇭", zone: "europe", ops: ["card"] },
-  { code: "OTHER", fr: "Autre pays", en: "Other country", flag: "🌍", zone: "other", ops: ["card"] },
+  { code: "CM", fr: "Cameroun", en: "Cameroon", flag: "🇨🇲", zone: "africa", ops: ["orange", "mtn", "card", "paypal"] },
+  { code: "CI", fr: "Côte d'Ivoire", en: "Côte d'Ivoire", flag: "🇨🇮", zone: "africa", ops: ["orange", "mtn", "card", "paypal"] },
+  { code: "SN", fr: "Sénégal", en: "Senegal", flag: "🇸🇳", zone: "africa", ops: ["orange", "card", "paypal"] },
+  { code: "BF", fr: "Burkina Faso", en: "Burkina Faso", flag: "🇧🇫", zone: "africa", ops: ["orange", "card", "paypal"] },
+  { code: "ML", fr: "Mali", en: "Mali", flag: "🇲🇱", zone: "africa", ops: ["orange", "card", "paypal"] },
+  { code: "GH", fr: "Ghana", en: "Ghana", flag: "🇬🇭", zone: "africa", ops: ["mtn", "card", "paypal"] },
+  { code: "CD", fr: "RD Congo", en: "DR Congo", flag: "🇨🇩", zone: "africa", ops: ["orange", "mtn", "card", "paypal"] },
+  { code: "FR", fr: "France", en: "France", flag: "🇫🇷", zone: "europe", ops: ["card", "sepa", "paypal"] },
+  { code: "BE", fr: "Belgique", en: "Belgium", flag: "🇧🇪", zone: "europe", ops: ["card", "sepa", "paypal"] },
+  { code: "DE", fr: "Allemagne", en: "Germany", flag: "🇩🇪", zone: "europe", ops: ["card", "sepa", "paypal"] },
+  { code: "CH", fr: "Suisse", en: "Switzerland", flag: "🇨🇭", zone: "europe", ops: ["card", "paypal"] },
+  { code: "OTHER", fr: "Autre pays", en: "Other country", flag: "🌍", zone: "other", ops: ["card", "paypal"] },
 ];
 const OPS = {
   orange: { name: "Orange Money", bg: "#FF6600", sub: { fr: "Paiement mobile", en: "Mobile payment" }, icon: Smartphone, phone: true, badge: "OM" },
   mtn: { name: "MTN MoMo", bg: "#FFCC00", fg: "#1B1512", sub: { fr: "MTN Mobile Money", en: "MTN Mobile Money" }, icon: Smartphone, phone: true, badge: "MTN" },
   card: { name: { fr: "Carte bancaire", en: "Bank card" }, bg: "#164A3B", sub: { fr: "Visa · Mastercard", en: "Visa · Mastercard" }, icon: CreditCard, phone: false },
+  paypal: { name: "PayPal", bg: "#003087", sub: { fr: "Paiement sécurisé PayPal", en: "Secure PayPal payment" }, icon: Wallet, phone: false, badge: "PP" },
   sepa: { name: { fr: "Virement SEPA", en: "SEPA transfer" }, bg: "#2C6B57", sub: { fr: "Prélèvement européen", en: "European direct debit" }, icon: Landmark, phone: false },
 };
 const FCFA = 655.957;
@@ -540,8 +541,17 @@ function Donate({ lang }) {
   const [phone, setPhone] = useState(""), [name, setName] = useState(""), [email, setEmail] = useState(""), [anon, setAnon] = useState(false);
   const [result, setResult] = useState(null), [err, setErr] = useState(""), [loading, setLoading] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState("");
+  const [paypalReturn, setPaypalReturn] = useState(null);
   const c = COUNTRIES.find((x) => x.code === country);
   useEffect(() => { if (!c.ops.includes(method)) setMethod(c.ops[0]); }, [country]);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("paypal");
+    if (status) {
+      setPaypalReturn({ status, ref: params.get("ref") });
+      window.history.replaceState({}, "", "/donate");
+    }
+  }, []);
   const value = custom ? Math.max(0, parseInt(custom) || 0) : amount;
   const fcfa = Math.round(value * FCFA); const op = OPS[method];
 
@@ -554,6 +564,27 @@ function Donate({ lang }) {
       setResult(r);
     } catch (e) { setErr(e.message); } finally { setLoading(false); }
   };
+
+  if (paypalReturn) {
+    const ok = paypalReturn.status === "success";
+    return (
+      <section className="section tight"><div className="wrap" style={{ maxWidth: 620 }}>
+        <div className="success" style={ok ? undefined : { background: "var(--laterite)" }}>
+          <div className="ci">{ok ? <Check size={34} /> : <X size={34} />}</div>
+          <h2 style={{ color: "#fff", fontSize: 28 }}>
+            {ok ? (fr ? "Merci du fond du cœur !" : "Thank you from the heart!") : (fr ? "Paiement non abouti" : "Payment not completed")}
+          </h2>
+          <p style={{ color: "rgba(255,255,255,.9)", marginTop: 12, fontSize: 16 }}>
+            {ok
+              ? (fr ? "Votre paiement PayPal a été confirmé." : "Your PayPal payment has been confirmed.")
+              : (fr ? "Le paiement PayPal a été annulé ou a échoué. Vous n'avez rien été débité." : "The PayPal payment was cancelled or failed. You haven't been charged.")}
+          </p>
+          {paypalReturn.ref && <p style={{ color: "rgba(255,255,255,.75)", marginTop: 10, fontSize: 14 }}>{fr ? "Référence" : "Reference"} : <strong>{paypalReturn.ref}</strong></p>}
+          <button className="btn btn-gold" style={{ marginTop: 22 }} onClick={() => setPaypalReturn(null)}>{fr ? "Retour au don" : "Back to donation"}</button>
+        </div>
+      </div></section>
+    );
+  }
 
   if (result) {
     return (
@@ -698,8 +729,17 @@ function Membership({ lang }) {
   const [accepted, setAccepted] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState("");
   const [result, setResult] = useState(null), [err, setErr] = useState(""), [loading, setLoading] = useState(false);
+  const [paypalReturn, setPaypalReturn] = useState(null);
   const c = COUNTRIES.find((x) => x.code === country);
   useEffect(() => { if (!c.ops.includes(method)) setMethod(c.ops[0]); }, [country]);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("paypal");
+    if (status) {
+      setPaypalReturn({ status, ref: params.get("ref") });
+      window.history.replaceState({}, "", "/membership");
+    }
+  }, []);
   const value = custom ? Math.max(0, parseInt(custom) || 0) : amount;
   const fcfa = Math.round(value * FCFA); const op = OPS[method];
 
@@ -714,6 +754,27 @@ function Membership({ lang }) {
       setResult(r);
     } catch (e) { setErr(e.message); } finally { setLoading(false); }
   };
+
+  if (paypalReturn) {
+    const ok = paypalReturn.status === "success";
+    return (
+      <section className="section tight"><div className="wrap" style={{ maxWidth: 620 }}>
+        <div className="success" style={ok ? undefined : { background: "var(--laterite)" }}>
+          <div className="ci">{ok ? <Check size={34} /> : <X size={34} />}</div>
+          <h2 style={{ color: "#fff", fontSize: 28 }}>
+            {ok ? (fr ? "Bienvenue dans la famille DFD !" : "Welcome to the DFD family!") : (fr ? "Paiement non abouti" : "Payment not completed")}
+          </h2>
+          <p style={{ color: "rgba(255,255,255,.9)", marginTop: 12, fontSize: 16 }}>
+            {ok
+              ? (fr ? "Votre paiement PayPal a été confirmé." : "Your PayPal payment has been confirmed.")
+              : (fr ? "Le paiement PayPal a été annulé ou a échoué. Vous n'avez rien été débité." : "The PayPal payment was cancelled or failed. You haven't been charged.")}
+          </p>
+          {paypalReturn.ref && <p style={{ color: "rgba(255,255,255,.75)", marginTop: 10, fontSize: 14 }}>{fr ? "Référence" : "Reference"} : <strong>{paypalReturn.ref}</strong></p>}
+          <button className="btn btn-gold" style={{ marginTop: 22 }} onClick={() => setPaypalReturn(null)}>{fr ? "Retour à l'adhésion" : "Back to membership"}</button>
+        </div>
+      </div></section>
+    );
+  }
 
   if (result) {
     return (

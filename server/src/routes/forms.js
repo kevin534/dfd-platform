@@ -33,8 +33,8 @@ router.post("/donations", async (req, res) => {
       .run(reference, amt, frequency || "once", country || null, method,
         anonymous ? null : (name || null), email || null, phone || null, anonymous ? 1 : 0, "pending");
 
-    // Initie le paiement auprès du bon opérateur (Orange / MTN / Stripe)
-    const payment = await initiatePayment({ method, reference, amountEur: amt, phone, email });
+    // Initie le paiement auprès du bon opérateur (Orange / MTN / Stripe / PayPal)
+    const payment = await initiatePayment({ method, reference, amountEur: amt, phone, email, kind: "donation" });
 
     // En mode démo, on marque le don comme complété tout de suite.
     if (payment.mode === "demo") {
@@ -91,7 +91,7 @@ router.post("/memberships", async (req, res) => {
       VALUES (?,?,?,?,?,?,?,?,?)`)
       .run(reference, amt, country || null, method, name, email, phone || null, 1, "pending");
 
-    const payment = await initiatePayment({ method, reference, amountEur: amt, phone, email });
+    const payment = await initiatePayment({ method, reference, amountEur: amt, phone, email, kind: "membership" });
 
     if (payment.mode === "demo") {
       db.prepare("UPDATE members SET status='completed' WHERE reference=?").run(reference);
